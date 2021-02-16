@@ -41,7 +41,7 @@ public struct SignerS3 {
             headerList += "\(name);"
         }
         headerList = String(headerList.dropLast())
-        return "\(self.method.string)\(self.LF)\(self.configs.bucketName)/\(self.itemKey)\(self.LF)\(self.LF)\(headers)\(self.LF)\(headerList)\(self.LF)\(self.bodyHash)"
+        return "\(self.method.string)\(self.LF)/\(self.configs.bucketName)/\(self.itemKey)\(self.LF)\(self.LF)\(headers)\(self.LF)\(headerList)\(self.LF)\(self.bodyHash)"
     }
     
     private func credentials() -> String {
