@@ -51,11 +51,11 @@ public struct SignerS3 {
     private func generateKey() -> String {
         
         let key1st = "AWS4" + self.configs.secretKey
-        let key2nd = HMACWorker(key: key1st, data: self.now.xAmzDate(full: false)).string()
-        let key3rd = HMACWorker(key: key2nd, data: self.configs.region).string()
-        let key4th = HMACWorker(key: key3rd, data: self.configs.service).string()
-        let key5th = HMACWorker(key: key4th, data: "aws4_request").string()
-        let key6th = HMACWorker(key: key5th, data: self.generateString()).string()
+        let key2nd = HMACWorker(key: key1st, data: self.now.xAmzDate(full: false)).asKey()
+        let key3rd = HMACWorker(symmKey: key2nd, data: self.configs.region).asKey()
+        let key4th = HMACWorker(symmKey: key3rd, data: self.configs.service).asKey()
+        let key5th = HMACWorker(symmKey: key4th, data: "aws4_request").asKey()
+        let key6th = HMACWorker(symmKey: key5th, data: self.generateString()).string()
         
         return "Signature=\(key6th)"
     }

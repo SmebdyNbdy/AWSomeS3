@@ -19,7 +19,17 @@ struct HMACWorker {
         self.message = hmac.finalize()
     }
     
+    init(symmKey: SymmetricKey, data: String) {
+        let messageData = data.data(using: .utf8)!
+        
+        self.message = HMAC<SHA256>.authenticationCode(for: messageData, using: symmKey)
+    }
+    
     func string() -> String {
         return self.message.description.replacingOccurrences(of: "HMAC with SHA256: ", with: "")
+    }
+    
+    func asKey() -> SymmetricKey {
+        return SymmetricKey(data: self.message)
     }
 }
