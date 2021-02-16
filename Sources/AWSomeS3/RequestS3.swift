@@ -9,32 +9,23 @@ import Vapor
 
 public struct RequestS3 {
     let application: Application
-    let signerS3: SignerS3
     let configS3: ConfigS3
     
     init(application: Application) {
         self.application = application
         self.configS3 = self.application.configS3
-        self.signerS3 = SignerS3(self.configS3)
     }
     
-    private func getAmznNow() -> String {
-        var now = Date()
-        now.addTimeInterval(TimeInterval(-10800))
-        let dF = DateFormatter()
-        dF.dateStyle = .short
-        dF.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
-        return dF.string(from: now)
-    }
-    
-    public func getHeaders() -> HTTPHeaders {
-        return HTTPHeaders([
-            ("Accept", "application/json"),
-            ("Host", "storage.yandexcloud.net"),
-            ("x-amz-date", getAmznNow()),
-            ("connection", "keep-alive"),
-            ("Authorization", self.signerS3.authorization())
-        ])
+    public func sign(_ method: HTTPMethod, item: String, body: Data?) -> HTTPHeaders {
+        var signer: SignerS3
+        var hasher = SHA256()
+        hasher.update(data: body ?? Data())
+        let bodyHash = hasher.finalize().hex
+        signer = SignerS3(method, item: item, with: self.configS3, bodyHash: bodyHash)
+        var myHeaders = signer.getHeaders()
+        myHeaders.replaceOrAdd(name: "Connection", value: "keep-alive")
+        myHeaders.replaceOrAdd(name: "Authorization", value: signer.authorization())
+        return myHeaders
     }
 }
 

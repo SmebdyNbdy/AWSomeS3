@@ -15,7 +15,7 @@ public struct ConfigS3 {
     var secretKey: String
     var bucketName: String
     
-    public init(url: String = "https://storage.yandexcloud.net/", service: String = "s3", region: String = "ru-central1", accessKey: String, secretKey: String, bucketName: String) {
+    public init(url: String = "https://storage.yandexcloud.net", service: String = "s3", region: String = "ru-central1", accessKey: String, secretKey: String, bucketName: String) {
         self.url = url
         self.service = service
         self.region = region

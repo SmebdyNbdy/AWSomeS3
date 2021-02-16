@@ -9,38 +9,79 @@ import Vapor
 
 public struct SignerS3 {
     let configs: ConfigS3
+    let itemKey: String
+    let method: HTTPMethod
+    let now: Date
+    let bodyHash: String
+    let LF = "\u{0a}"
     
-    public init(_ configS3: ConfigS3) {
+    public init(_ method: HTTPMethod, item itemKey: String, with configS3: ConfigS3, bodyHash: String) {
         self.configs = configS3
+        self.method = method
+        self.itemKey = itemKey
+        self.bodyHash = bodyHash
+        self.now = Date()
     }
     
-    private func getNow() -> String{
-        let now = Date()
-        let dF = DateFormatter()
-        dF.dateStyle = .short
-        dF.timeStyle = .none
-        dF.dateFormat = "yyyyMMdd"
-        return dF.string(from: now)
+    public func getHeaders() -> HTTPHeaders {
+        return HTTPHeaders([
+            ("Accept", "application/json"),
+            ("Host", self.configs.url.replacingOccurrences(of: "https://", with: "")),
+            ("x-amz-date", self.now.xAmzDate(full: true))
+        ])
     }
     
-    private func signature() -> String {
-        let URIenc = URI.init(string: configs.url + configs.bucketName + "/" + "object")
-        let _ = URIenc.string
+    private func buildCanonical() -> String {
+        var headers = ""
+        self.getHeaders().forEach { (name: String, value: String) in
+            headers += "\(name):\(value)\(self.LF)"
+        }
+        var headerList = ""
+        self.getHeaders().forEach { (name: String, value: String) in
+            headerList += "\(name);"
+        }
+        headerList = String(headerList.dropLast())
+        return "\(self.method.string)\(self.LF)\(self.configs.bucketName)/\(self.itemKey)\(self.LF)\(self.LF)\(headers)\(self.LF)\(headerList)\(self.LF)\(self.bodyHash)"
+    }
+    
+    private func credentials() -> String {
+        return "\(self.now.xAmzDate(full: false))/\(self.configs.region)/\(self.configs.service)/aws4_request"
+    }
+    
+    private func generateKey() -> String {
         
         let key1st = "AWS4" + self.configs.secretKey
-        let key2nd = HMACWorker(key: key1st, data: getNow()).string()
+        let key2nd = HMACWorker(key: key1st, data: self.now.xAmzDate(full: false)).string()
         let key3rd = HMACWorker(key: key2nd, data: self.configs.region).string()
         let key4th = HMACWorker(key: key3rd, data: self.configs.service).string()
         let key5th = HMACWorker(key: key4th, data: "aws4_request").string()
+        let key6th = HMACWorker(key: key5th, data: self.generateString()).string()
         
-        return "Signature=\(key5th)"
+        return "Signature=\(key6th)"
     }
     
-    func authorization() -> String {
+    private func generateString() -> String {
+        var canonHash = SHA256()
+        canonHash.update(data: buildCanonical().data(using: .utf8)!)
+        let hashedReq = canonHash.finalize().hex
+        return "AWS4-HMAC-SHA256\(self.LF)\(self.now.xAmzDate(full: true))\(self.LF)\(self.credentials())\(self.LF)\(hashedReq)"
+    }
+    
+    public func getURI() -> URI {
+        return URI(string: "\(configs.url)/\(configs.bucketName)/\(self.itemKey)")
+    }
+    
+    public func authorization() -> String {
+        var headerList = ""
+        self.getHeaders().forEach { (name: String, value: String) in
+            headerList += "\(name);"
+        }
+        headerList = String(headerList.dropLast())
+        
         let part1 = "AWS4-HMAC-SHA256"
-        let part2 = "Credential=\(self.configs.accessKey)/\(getNow())/\(self.configs.region)/\(self.configs.service)/aws4_request,"
-        let part3 = "SignedHeaders=accept;host;x-amz-date,"
-        let part4 = self.signature()
+        let part2 = "Credential=\(self.configs.accessKey)/\(self.credentials()),"
+        let part3 = "SignedHeaders=\(headerList),"
+        let part4 = self.generateKey()
         
         return "\(part1) \(part2) \(part3) \(part4)"
     }
