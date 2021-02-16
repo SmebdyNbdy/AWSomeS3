@@ -2,7 +2,7 @@
 ### Vapor version 4.0.0
 ### Swift version 5.2
 
-====
+----
 
 TODO:
 - [ ] Describe usage

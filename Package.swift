@@ -8,9 +8,7 @@ let package = Package(
        .macOS(.v10_15)
     ],
     products: [
-        .library(
-            name: "AWSomeS3",
-            targets: ["AWSomeS3"]),
+        .library(name: "AWSomeS3", targets: ["AWSomeS3"])
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0")
