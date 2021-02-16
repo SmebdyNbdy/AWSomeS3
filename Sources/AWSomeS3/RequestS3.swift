@@ -26,7 +26,7 @@ public struct RequestS3 {
         return dF.string(from: now)
     }
     
-    func getHeaders() -> HTTPHeaders {
+    public func getHeaders() -> HTTPHeaders {
         return HTTPHeaders([
             ("Accept", "application/json"),
             ("Host", "storage.yandexcloud.net"),
