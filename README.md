@@ -13,14 +13,14 @@ In your `Package.swift` add the following dependencies
 dependencies: [
     •••
     .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"), // duh...
-    .package(url: "https://github.com/smebdynbdy/awsomes3.git", from: "0.1.0")
+    .package(name: "AWSomeS3", url: "https://github.com/smebdynbdy/awsomes3.git", from: "0.1.3")
 ],
 targets: [
     .target(
         •••
         dependencies: [
             •••
-            .product(name: "AWSomeS3", package: "awsomes3")
+            .product(name: "AWSomeS3", package: "AWSomeS3")
         ])
 ]
 ```
