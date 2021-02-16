@@ -14,9 +14,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0")
     ],
     targets: [
-        .target(
-            name: "AWSomeS3",
-            dependencies: [
+        .target(name: "AWSomeS3", dependencies: [
                 .product(name: "Vapor", package: "vapor")
             ]),
         .testTarget(
