@@ -72,6 +72,9 @@ public struct SignerS3 {
     }
     
     public func authorization() -> String {
+        let loggar = Logger(label: "signer")
+        loggar.info(Logger.Message(stringLiteral: self.buildCanonical()))
+        
         var headerList = ""
         self.getHeaders().forEach { (name: String, value: String) in
             headerList += "\(name);"
