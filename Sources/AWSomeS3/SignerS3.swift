@@ -25,8 +25,8 @@ public struct SignerS3 {
     
     public func getHeaders() -> HTTPHeaders {
         return HTTPHeaders([
-            ("Accept", "application/json"),
-            ("Host", self.configs.url.replacingOccurrences(of: "https://", with: "")),
+            ("accept", "application/json"),
+            ("host", self.configs.url.replacingOccurrences(of: "https://", with: "")),
             ("x-amz-date", self.now.xAmzDate(full: true))
         ])
     }
@@ -55,7 +55,10 @@ public struct SignerS3 {
         let key3rd = HMACWorker(symmKey: key2nd, data: self.configs.region).asKey()
         let key4th = HMACWorker(symmKey: key3rd, data: self.configs.service).asKey()
         let key5th = HMACWorker(symmKey: key4th, data: "aws4_request").asKey()
-        let key6th = HMACWorker(symmKey: key5th, data: self.generateString()).string()
+        let loggr = Logger(label: "s4")
+        loggr.info(Logger.Message(stringLiteral: self.generateString()))
+        let key6th = HMACWorker(symmKey: key5th, data: self.generateString())
+        loggr.info(Logger.Message(stringLiteral: key6th.message.hex))
         
         return "Signature=\(key6th)"
     }

@@ -23,7 +23,7 @@ public struct RequestS3 {
         let bodyHash = hasher.finalize().hex
         signer = SignerS3(method, item: item, with: self.configS3, bodyHash: bodyHash)
         var myHeaders = signer.getHeaders()
-        myHeaders.replaceOrAdd(name: "Connection", value: "keep-alive")
+        myHeaders.replaceOrAdd(name: "connection", value: "keep-alive")
         myHeaders.replaceOrAdd(name: "Authorization", value: signer.authorization())
         return myHeaders
     }
