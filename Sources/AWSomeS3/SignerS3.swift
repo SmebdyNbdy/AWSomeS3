@@ -60,7 +60,7 @@ public struct SignerS3 {
         let key6th = HMACWorker(symmKey: key5th, data: self.generateString())
         loggr.info(Logger.Message(stringLiteral: key6th.message.hex))
         
-        return "Signature=\(key6th)"
+        return "Signature=\(key6th.message.hex)"
     }
     
     private func generateString() -> String {
