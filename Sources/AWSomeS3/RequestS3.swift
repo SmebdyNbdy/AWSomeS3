@@ -19,7 +19,8 @@ public struct RequestS3 {
     }
     
     private func getAmznNow() -> String {
-        let now = Date()
+        var now = Date()
+        now.addTimeInterval(TimeInterval(-10800))
         let dF = DateFormatter()
         dF.dateStyle = .short
         dF.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
