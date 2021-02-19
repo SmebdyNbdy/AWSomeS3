@@ -26,7 +26,7 @@ struct HMACWorker {
     }
     
     func string() -> String {
-        return self.message.description.replacingOccurrences(of: "HMAC with SHA256: ", with: "")
+        return self.message.hexEncodedString()
     }
     
     func asKey() -> SymmetricKey {
