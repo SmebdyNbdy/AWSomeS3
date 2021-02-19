@@ -13,7 +13,7 @@ public struct ConfigS3 {
     var region: String
     var accessKey: String
     var secretKey: String
-    var bucketName: String
+    public var bucketName: String
     
     public init(host: String = "storage.yandexcloud.net", service: String = "s3", region: String = "ru-central1", accessKey: String, secretKey: String, bucketName: String) {
         self.host = host
